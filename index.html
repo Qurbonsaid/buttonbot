@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Message & Button Builder</title>
+    <style>
+        :root {
+            --bg-main: #0e1621;
+            --bg-panel: #17212b;
+            --bg-input: #242f3d;
+            --bg-hover: #2b3b4f;
+            --text-primary: #f5f5f5;
+            --text-secondary: #7f91a4;
+            --accent: #5288c1;
+            --accent-hover: #4677ab;
+            --danger: #e53935;
+            --success: #4dcd5e;
+            --border-color: #202b36;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .corner-btn {
+            background: var(--bg-input);
+            border: 1px solid #314052;
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .corner-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+        }
+
+        .token-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--danger);
+        }
+        .token-status-dot.connected {
+            background-color: var(--success);
+        }
+
+        /* Main Container */
+        .container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (max-width: 850px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        textarea, input[type="text"] {
+            background-color: var(--bg-input);
+            border: 1px solid #314052;
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            resize: vertical;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        textarea {
+            min-height: 120px;
+        }
+
+        /* Formatting Toolbar */
+        .formatting-toolbar {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .fmt-btn {
+            background: var(--bg-input);
+            border: 1px solid #314052;
+            color: var(--text-primary);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .fmt-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Button Builder */
+        .buttons-builder {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .kb-row {
+            background: #101720;
+            border: 1px dashed #28384d;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .kb-row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .kb-buttons-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .kb-btn-item {
+            background: var(--bg-input);
+            border: 1px solid #314052;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .kb-btn-item span {
+            color: #90caf9;
+            font-size: 11px;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0 2px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid #314052;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Telegram Preview Box */
+        .tg-preview-window {
+            background: #0e1621;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 8px;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+            background-size: 20px 20px;
+        }
+
+        .tg-msg-bubble {
+            background: #182533;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border-bottom-left-radius: 4px;
+            max-width: 90%;
+            font-size: 14px;
+            line-height: 1.4;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        .tg-inline-keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .tg-kb-row {
+            display: flex;
+            gap: 4px;
+        }
+
+        .tg-kb-button {
+            flex: 1;
+            background: #2b5278;
+            color: #fff;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: center;
+            cursor: default;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-panel);
+            width: 400px;
+            max-width: 90%;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .modal h3 {
+            font-size: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #242f3d;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span>🤖 Telegram Message Builder</span>
+        </div>
+        <button class="corner-btn" id="openTokenModal">
+            <span class="token-status-dot" id="tokenDot"></span>
+            <span id="tokenBtnText">Tokenni sozlash</span>
+        </button>
+    </header>
+
+    <div class="container">
+        <!-- Chap qism: Kontent va Tugmalar konstruktori -->
+        <div class="card">
+            <div class="card-title">1. Xabar matni va formatlash</div>
+            
+            <div class="form-group">
+                <label>Xabar matni</label>
+                <div class="formatting-toolbar">
+                    <button class="fmt-btn" onclick="formatText('<b>', '</b>')"><b>B</b></button>
+                    <button class="fmt-btn" onclick="formatText('<i>', '</i>')"><i>I</i></button>
+                    <button class="fmt-btn" onclick="formatText('<u>', '</u>')"><u>U</u></button>
+                    <button class="fmt-btn" onclick="formatText('<code>', '</code>')">Code</button>
+                    <button class="fmt-btn" onclick="formatText('<a href=\'URL\'>', '</a>')">Link</button>
+                </div>
+                <textarea id="msgText" placeholder="Xabaringizni shu yerga yozing... (HTML teglari qo'llab-quvvatlanadi)"></textarea>
+            </div>
+
+            <div class="card-title" style="margin-top: 10px;">2. Inline Tugmalar (Inline Keyboard)</div>
+            
+            <div class="buttons-builder" id="rowsContainer">
+                <!-- Dinamik qatorlar shu yerga qo'shiladi -->
+            </div>
+
+            <button class="btn btn-secondary" id="addRowBtn">+ Yangi qator qo'shish</button>
+        </div>
+
+        <!-- O'ng qism: Ko'rinish (Preview) va Yuborish -->
+        <div class="card">
+            <div class="card-title">Jonli ko'rinish (Telegram Preview)</div>
+            
+            <div class="tg-preview-window" id="previewWindow">
+                <div style="text-align: center; color: var(--text-secondary); font-size: 13px;" id="previewPlaceholder">
+                    Xabar matni kiritilmagan
+                </div>
+            </div>
+
+            <div class="card-title" style="margin-top: 10px;">Xabarni yuborish</div>
+            
+            <div class="form-group">
+                <label>Qabul qiluvchi Chat ID</label>
+                <input type="text" id="chatIdInput" placeholder="Masalan: 123456789 yoki -100... guruh ID">
+            </div>
+
+            <button class="btn btn-primary" id="sendBtn">Telegramga yuborish</button>
+        </div>
+    </div>
+
+    <!-- Token Modal -->
+    <div class="modal-overlay" id="tokenModal">
+        <div class="modal">
+            <h3>Telegram Bot Tokenini kiritish</h3>
+            <div class="form-group">
+                <label>BotFather dan olingan token</label>
+                <input type="text" id="tokenInput" placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ">
+            </div>
+            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                Token brauzerning <b>localStorage</b> xotirasida saqlanadi va hech qayerga yuborilmaydi.
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="closeTokenModal">Bekor qilish</button>
+                <button class="btn btn-primary" id="saveTokenBtn">Saqlash</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tugma qo'shish Modal -->
+    <div class="modal-overlay" id="btnModal">
+        <div class="modal">
+            <h3>Tugma qo'shish</h3>
+            <div class="form-group">
+                <label>Tugma matni (Label)</label>
+                <input type="text" id="btnText" placeholder="Masalan: Saytga o'tish 🌐">
+            </div>
+            <div class="form-group">
+                <label>Havola (URL) yoki Callback Data</label>
+                <input type="text" id="btnUrl" placeholder="https://example.com yoki action_click">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="closeBtnModal">Bekor qilish</button>
+                <button class="btn btn-primary" id="saveBtnModal">Qo'shish</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const STORAGE_KEY = "tg_msg_builder_token";
+        let kbRows = []; // Tugmalar massivi: [[{text, url}, ...], ...]
+        let activeRowIndex = null;
+
+        const els = {
+            tokenModal: document.getElementById("tokenModal"),
+            openTokenModal: document.getElementById("openTokenModal"),
+            closeTokenModal: document.getElementById("closeTokenModal"),
+            saveTokenBtn: document.getElementById("saveTokenBtn"),
+            tokenInput: document.getElementById("tokenInput"),
+            tokenDot: document.getElementById("tokenDot"),
+            tokenBtnText: document.getElementById("tokenBtnText"),
+            
+            msgText: document.getElementById("msgText"),
+            rowsContainer: document.getElementById("rowsContainer"),
+            addRowBtn: document.getElementById("addRowBtn"),
+            
+            previewWindow: document.getElementById("previewWindow"),
+            previewPlaceholder: document.getElementById("previewPlaceholder"),
+            chatIdInput: document.getElementById("chatIdInput"),
+            sendBtn: document.getElementById("sendBtn"),
+
+            btnModal: document.getElementById("btnModal"),
+            closeBtnModal: document.getElementById("closeBtnModal"),
+            saveBtnModal: document.getElementById("saveBtnModal"),
+            btnText: document.getElementById("btnText"),
+            btnUrl: document.getElementById("btnUrl"),
+            toast: document.getElementById("toast")
+        };
+
+        function showToast(msg) {
+            els.toast.textContent = msg;
+            els.toast.classList.add("show");
+            setTimeout(() => els.toast.classList.remove("show"), 3000);
+        }
+
+        // Tokenni tekshirish va UI yangilash
+        function checkToken() {
+            const token = localStorage.getItem(STORAGE_KEY);
+            if (token) {
+                els.tokenDot.classList.add("connected");
+                els.tokenBtnText.textContent = "Tokendan foydalanilmoqda";
+            } else {
+                els.tokenDot.classList.remove("connected");
+                els.tokenBtnText.textContent = "Tokenni sozlash";
+            }
+        }
+
+        // Token Modal
+        els.openTokenModal.onclick = () => {
+            els.tokenInput.value = localStorage.getItem(STORAGE_KEY) || "";
+            els.tokenModal.classList.add("open");
+        };
+        els.closeTokenModal.onclick = () => els.tokenModal.classList.remove("open");
+        els.saveTokenBtn.onclick = () => {
+            const val = els.tokenInput.value.trim();
+            if (val) {
+                localStorage.setItem(STORAGE_KEY, val);
+                showToast("Token muvaffaqiyatli saqlandi!");
+            } else {
+                localStorage.removeItem(STORAGE_KEY);
+                showToast("Token o'chirildi.");
+            }
+            els.tokenModal.classList.remove("open");
+            checkToken();
+        };
+
+        // Text formatting helper
+        window.formatText = function(openTag, closeTag) {
+            const ta = els.msgText;
+            const start = ta.selectionStart;
+            const end = ta.selectionEnd;
+            const val = ta.value;
+            ta.value = val.substring(0, start) + openTag + val.substring(start, end) + closeTag + val.substring(end);
+            ta.focus();
+            ta.setSelectionRange(start + openTag.length, end + openTag.length);
+            updatePreview();
+        };
+
+        // Keyboard Builder logic
+        els.addRowBtn.onclick = () => {
+            kbRows.push([]);
+            renderBuilder();
+            updatePreview();
+        };
+
+        function removeRow(rowIndex) {
+            kbRows.splice(rowIndex, 1);
+            renderBuilder();
+            updatePreview();
+        }
+
+        function removeButton(rowIndex, btnIndex) {
+            kbRows[rowIndex].splice(btnIndex, 1);
+            renderBuilder();
+            updatePreview();
+        }
+
+        function openAddButtonModal(rowIndex) {
+            activeRowIndex = rowIndex;
+            els.btnText.value = "";
+            els.btnUrl.value = "";
+            els.btnModal.classList.add("open");
+        }
+
+        els.closeBtnModal.onclick = () => els.btnModal.classList.remove("open");
+        els.saveBtnModal.onclick = () => {
+            const text = els.btnText.value.trim();
+            const url = els.btnUrl.value.trim();
+            if (!text || !url) return showToast("Barcha maydonlarni to'ldiring!");
+
+            kbRows[activeRowIndex].push({ text, url });
+            els.btnModal.classList.remove("open");
+            renderBuilder();
+            updatePreview();
+        };
+
+        function renderBuilder() {
+            els.rowsContainer.innerHTML = "";
+            if (kbRows.length === 0) {
+                els.rowsContainer.innerHTML = `<div style="color: var(--text-secondary); font-size: 13px;">Hali tugmalar qo'shilmagan.</div>`;
+                return;
+            }
+
+            kbRows.forEach((row, rIdx) => {
+                const rowDiv = document.createElement("div");
+                rowDiv.className = "kb-row";
+                
+                let buttonsHtml = "";
+                row.forEach((btn, bIdx) => {
+                    buttonsHtml += `
+                        <div class="kb-btn-item">
+                            <span>${escapeHtml(btn.text)}</span>
+                            <button class="remove-btn" onclick="removeButton(${rIdx}, ${bIdx})">&times;</button>
+                        </div>
+                    `;
+                });
+
+                rowDiv.innerHTML = `
+                    <div class="kb-row-header">
+                        <span>Qator #${rIdx + 1}</span>
+                        <div>
+                            <button class="fmt-btn" onclick="openAddButtonModal(${rIdx})">+ Tugma qo'shish</button>
+                            <button class="remove-btn" onclick="removeRow(${rIdx})" style="margin-left: 8px;">Qatorni o'chirish</button>
+                        </div>
+                    </div>
+                    <div class="kb-buttons-list">${buttonsHtml || '<span style="font-size:12px;color:var(--text-secondary);">Bo\'sh qator</span>'}</div>
+                `;
+                els.rowsContainer.appendChild(rowDiv);
+            });
+        }
+
+        // Preview Render
+        function updatePreview() {
+            const text = els.msgText.value.trim();
+            els.previewWindow.innerHTML = "";
+
+            if (!text && kbRows.length === 0) {
+                els.previewWindow.appendChild(els.previewPlaceholder);
+                els.previewPlaceholder.style.display = "block";
+                return;
+            }
+
+            const bubble = document.createElement("div");
+            bubble.className = "tg-msg-bubble";
+            // HTML formatni sodda ko'rsatish uchun replace qilamiz yoki innerHTML qilamiz
+            bubble.innerHTML = text ? escapeHtml(text).replace(/\n/g, '<br>') : "<span style='color:var(--text-secondary);'>[Matn yo'q]</span>";
+            els.previewWindow.appendChild(bubble);
+
+            if (kbRows.length > 0) {
+                const kbContainer = document.createElement("div");
+                kbContainer.className = "tg-inline-keyboard";
+
+                kbRows.forEach(row => {
+                    if (row.length === 0) return;
+                    const rDiv = document.createElement("div");
+                    rDiv.className = "tg-kb-row";
+                    row.forEach(btn => {
+                        const bEl = document.createElement("button");
+                        bEl.className = "tg-kb-button";
+                        bEl.textContent = btn.text;
+                        rDiv.appendChild(bEl);
+                    });
+                    kbContainer.appendChild(rDiv);
+                });
+                els.previewWindow.appendChild(kbContainer);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        els.msgText.oninput = updatePreview;
+
+        // Send to Telegram
+        els.sendBtn.onclick = async () => {
+            const token = localStorage.getItem(STORAGE_KEY);
+            if (!token) return showToast("Iltimos, avval burchakdagi tugma orqali Bot Tokenini kiriting!");
+
+            const chatId = els.chatIdInput.value.trim();
+            const text = els.msgText.value.trim();
+            if (!chatId) return showToast("Qabul qiluvchi Chat ID ni kiriting!");
+            if (!text) return showToast("Xabar matnini kiriting!");
+
+            // Inline keyboard payload tayyorlash
+            let reply_markup = undefined;
+            if (kbRows.length > 0) {
+                const inline_keyboard = kbRows.map(row => 
+                    row.map(btn => {
+                        if (btn.url.startsWith("http://") || btn.url.startsWith("https://") || btn.url.startsWith("tg://")) {
+                            return { text: btn.text, url: btn.url };
+                        } else {
+                            return { text: btn.text, callback_data: btn.url };
+                        }
+                    })
+                );
+                reply_markup = { inline_keyboard };
+            }
+
+            els.sendBtn.disabled = true;
+            els.sendBtn.textContent = "Yuborilmoqda...";
+
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: text,
+                        parse_mode: "HTML",
+                        reply_markup: reply_markup
+                    })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast("Xabar muvaffaqiyatli yuborildi!");
+                } else {
+                    showToast("Xatolik: " + (data.description || "Noma'lum xato"));
+                }
+            } catch (err) {
+                showToast("Tarmoq xatosi: " + err.message);
+            } finally {
+                els.sendBtn.disabled = false;
+                els.sendBtn.textContent = "Telegramga yuborish";
+            }
+        };
+
+        // Boshlang'ich holat
+        checkToken();
+        updatePreview();
+    </script>
+</body>
+</html>
